@@ -1,28 +1,28 @@
 from django.db import models
+
 from core.models import PublishedModel
 
 
-# Категории.
 class Category(PublishedModel):
-    title = models.CharField('Название', max_length=256)
-    slug = models.SlugField('Слаг', max_length=64, unique=True)
+    title = models.CharField(max_length=256, verbose_name='Название')
+    slug = models.SlugField(max_length=64, unique=True, verbose_name='Слаг')
     output_order = models.PositiveSmallIntegerField(
-        'Порядок отображения',
-        default=100
+        default=100,
+        verbose_name='Порядок отображения'
     )
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
+        ordering = ('output_order', )
 
     def __str__(self):
         return self.title
 
 
-# Топпинги.
 class Topping(PublishedModel):
-    title = models.CharField('Название', max_length=256)
-    slug = models.SlugField('Слаг', max_length=64, unique=True)
+    title = models.CharField(max_length=256, verbose_name='Название')
+    slug = models.SlugField(max_length=64, unique=True, verbose_name='Слаг')
 
     class Meta:
         verbose_name = 'топпинг'
@@ -32,34 +32,30 @@ class Topping(PublishedModel):
         return self.title
 
 
-# Обёртки.
 class Wrapper(PublishedModel):
     title = models.CharField(
-        'Название',
         max_length=256,
+        verbose_name='Название',
         help_text='Уникальное название обёртки, не более 256 символов'
     )
 
     class Meta:
-        verbose_name = 'объект «Обёртка»'
+        verbose_name = 'обёртка'
         verbose_name_plural = 'Обёртки'
 
     def __str__(self):
         return self.title
 
 
-# Сорта мороженого.
 class IceCream(PublishedModel):
-    is_on_main = models.BooleanField('На главную', default=False)
-    title = models.CharField('Название', max_length=256)
-    description = models.TextField('Описание')
-    # Создайте нужные связи между моделями:
+    title = models.CharField(max_length=256, verbose_name='Название')
+    description = models.TextField(verbose_name='Описание')
     wrapper = models.OneToOneField(
         Wrapper,
         on_delete=models.SET_NULL,
+        related_name='ice_cream',
         null=True,
         blank=True,
-        related_name='ice_cream',
         verbose_name='Обёртка'
     )
     category = models.ForeignKey(
@@ -68,20 +64,18 @@ class IceCream(PublishedModel):
         related_name='ice_creams',
         verbose_name='Категория'
     )
-    toppings = models.ManyToManyField(
-        Topping,
-        verbose_name='Топпинги'
-    )
-    price = models.DecimalField(max_digits=5, decimal_places=2)
     output_order = models.PositiveSmallIntegerField(
-        'Порядок отображения',
-        default=100
+        default=100,
+        verbose_name='Порядок отображения'
     )
+    toppings = models.ManyToManyField(Topping, verbose_name='Топпинги')
+    is_on_main = models.BooleanField(default=False, verbose_name='На главную')
+    price = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         verbose_name = 'мороженое'
         verbose_name_plural = 'Мороженое'
-        ordering = ('output_order', 'title')
+        # ordering = ('output_order', 'title')
 
     def __str__(self):
         return self.title
